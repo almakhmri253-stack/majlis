@@ -131,8 +131,6 @@ public class AuthService : IAuthService
                 CreateBookings    = p.CreateBookings,
                 ConfirmBookings   = p.ConfirmBookings,
                 DeleteBookings    = p.DeleteBookings,
-                ViewPayments      = p.ViewPayments,
-                ManagePayments    = p.ManagePayments,
                 ViewMembers       = p.ViewMembers,
                 ManageMembers     = p.ManageMembers,
                 ViewAllComplaints = p.ViewAllComplaints,

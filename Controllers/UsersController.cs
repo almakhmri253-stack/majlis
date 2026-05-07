@@ -165,8 +165,6 @@ public class UsersController : ControllerBase
         p.CreateBookings    = dto.CreateBookings;
         p.ConfirmBookings   = dto.ConfirmBookings;
         p.DeleteBookings    = dto.DeleteBookings;
-        p.ViewPayments      = dto.ViewPayments;
-        p.ManagePayments    = dto.ManagePayments;
         p.ViewMembers       = dto.ViewMembers;
         p.ManageMembers     = dto.ManageMembers;
         p.ViewAllComplaints = dto.ViewAllComplaints;
@@ -210,8 +208,6 @@ public class UsersController : ControllerBase
             p.CreateBookings    = dto.CreateBookings;
             p.ConfirmBookings   = dto.ConfirmBookings;
             p.DeleteBookings    = dto.DeleteBookings;
-            p.ViewPayments      = dto.ViewPayments;
-            p.ManagePayments    = dto.ManagePayments;
             p.ViewMembers       = dto.ViewMembers;
             p.ManageMembers     = dto.ManageMembers;
             p.ViewAllComplaints = dto.ViewAllComplaints;

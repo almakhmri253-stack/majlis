@@ -144,11 +144,6 @@
         <span>الحجوزات</span>
         <span class="nav-badge" id="pendingBadge" style="display:none"></span>
       </a>
-      <a class="nav-item" data-page="payments" onclick="navigate('payments')">
-        <span class="nav-icon">💰</span>
-        <span>المدفوعات</span>
-        <span class="nav-badge danger" id="overdueBadge" style="display:none"></span>
-      </a>
       <a class="nav-item" data-page="members" onclick="navigate('members')">
         <span class="nav-icon">👥</span>
         <span>أعضاء الجمعية</span>
@@ -304,26 +299,6 @@
         </div>
       </section>
 
-      <!-- ══ صفحة المدفوعات ══ -->
-      <section id="page-payments" class="page">
-        <div class="page-header">
-          <h2 class="page-title">المدفوعات</h2>
-        </div>
-        <div class="stats-grid mini" id="paymentStats">
-          <div class="stat-card skeleton"></div>
-          <div class="stat-card skeleton"></div>
-          <div class="stat-card skeleton"></div>
-        </div>
-        <div class="card">
-          <div class="card-header">
-            <h3>المتأخرون في الدفع</h3>
-          </div>
-          <div class="table-wrap" id="paymentsTable">
-            <div class="loading-center">جارٍ التحميل...</div>
-          </div>
-        </div>
-      </section>
-
       <!-- ══ صفحة الأعضاء ══ -->
       <section id="page-members" class="page">
         <div class="page-header">
@@ -410,11 +385,6 @@
               <label class="sw"><input type="checkbox" id="uCreateBookings"  onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>إنشاء</span>
               <label class="sw"><input type="checkbox" id="uConfirmBookings" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>تأكيد/رفض</span>
               <label class="sw"><input type="checkbox" id="uDeleteBookings"  onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>حذف</span>
-            </div>
-            <div class="unified-perm-group">
-              <div class="unified-perm-group-label">💰 المدفوعات</div>
-              <label class="sw"><input type="checkbox" id="uViewPayments"   onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>عرض</span>
-              <label class="sw"><input type="checkbox" id="uManagePayments" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>إدارة</span>
             </div>
             <div class="unified-perm-group">
               <div class="unified-perm-group-label">👥 الأعضاء</div>
@@ -731,32 +701,6 @@
   </div>
 </div>
 
-<!-- مودال دفعة حجز -->
-<div id="paymentModal" class="modal-overlay hidden">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <h3>إضافة دفعة</h3>
-      <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
-    </div>
-    <div class="modal-body">
-      <p id="paymentModalInfo" class="modal-subtitle"></p>
-      <input type="hidden" id="paymentIdInput" />
-      <div class="field-group">
-        <label>المبلغ (ر.ع) <span class="req">*</span></label>
-        <input type="number" id="paymentAmount" class="form-control" min="1" placeholder="0" required />
-      </div>
-      <div class="field-group">
-        <label>ملاحظة</label>
-        <input type="text" id="paymentNote" class="form-control" placeholder="اختياري" />
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
-      <button class="btn-primary" onclick="submitPaymentTransaction()">تسجيل الدفعة</button>
-    </div>
-  </div>
-</div>
-
 <!-- مودال إضافة مستخدم -->
 <div id="addUserModal" class="modal-overlay hidden">
   <div class="modal">
@@ -848,7 +792,7 @@
         </div>
         <div class="perm-summary-divider"></div>
         <div class="perm-summary-item">
-          <span class="perm-summary-count dim" id="permDisabledCount">12</span>
+          <span class="perm-summary-count dim" id="permDisabledCount">10</span>
           <span class="perm-summary-label">معطّلة</span>
         </div>
         <div class="perm-summary-presets">
@@ -886,28 +830,6 @@
           <div class="perm-row">
             <div class="perm-row-info"><span class="perm-row-name">حذف الحجوزات</span><span class="perm-row-desc">إزالة الحجوزات من النظام نهائياً</span></div>
             <label class="sw"><input type="checkbox" id="pDeleteBookings" data-section="bookings" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
-          </div>
-        </div>
-      </div>
-
-      <!-- المدفوعات -->
-      <div class="perm-cat">
-        <div class="perm-cat-hdr">
-          <div class="perm-cat-icon-wrap" style="background:#fffbeb;color:#b45309">💰</div>
-          <div class="perm-cat-label">المدفوعات</div>
-          <div class="perm-cat-actions">
-            <button type="button" onclick="toggleSection('payments',true)"  class="perm-cat-btn">الكل</button>
-            <button type="button" onclick="toggleSection('payments',false)" class="perm-cat-btn">لا شيء</button>
-          </div>
-        </div>
-        <div class="perm-rows">
-          <div class="perm-row">
-            <div class="perm-row-info"><span class="perm-row-name">عرض المدفوعات</span><span class="perm-row-desc">الاطلاع على سجلات الدفع والمتأخرات</span></div>
-            <label class="sw"><input type="checkbox" id="pViewPayments" data-section="payments" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
-          </div>
-          <div class="perm-row">
-            <div class="perm-row-info"><span class="perm-row-name">إدارة المدفوعات</span><span class="perm-row-desc">تسجيل دفعات وتعديل سجلات المالية</span></div>
-            <label class="sw"><input type="checkbox" id="pManagePayments" data-section="payments" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
           </div>
         </div>
       </div>
@@ -1051,6 +973,6 @@
 <!-- Toast Container -->
 <div id="toastContainer" class="toast-container"></div>
 
-<script src="/js/app.js?v=24"></script>
+<script src="/js/app.js?v=25"></script>
 </body>
 </html>

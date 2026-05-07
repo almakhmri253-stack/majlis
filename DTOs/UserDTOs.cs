@@ -39,8 +39,6 @@ public class UpdatePermissionsDto
     public bool CreateBookings    { get; set; }
     public bool ConfirmBookings   { get; set; }
     public bool DeleteBookings    { get; set; }
-    public bool ViewPayments      { get; set; }
-    public bool ManagePayments    { get; set; }
     public bool ViewMembers       { get; set; }
     public bool ManageMembers     { get; set; }
     public bool ViewAllComplaints { get; set; }

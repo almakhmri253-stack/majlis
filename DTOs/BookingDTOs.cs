@@ -62,7 +62,6 @@ public class BookingResponseDto
     public string? AdminNote { get; set; }
     public decimal Cost { get; set; }
     public DateTime CreatedAt { get; set; }
-    public PaymentSummaryDto? Payment { get; set; }
 }
 
 public class BookingCalendarDto

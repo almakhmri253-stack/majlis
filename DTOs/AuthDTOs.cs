@@ -48,8 +48,6 @@ public class PermissionsDto
     public bool CreateBookings  { get; set; }
     public bool ConfirmBookings { get; set; }
     public bool DeleteBookings  { get; set; }
-    public bool ViewPayments    { get; set; }
-    public bool ManagePayments  { get; set; }
     public bool ViewMembers     { get; set; }
     public bool ManageMembers   { get; set; }
     public bool ViewAllComplaints { get; set; }
@@ -60,7 +58,6 @@ public class PermissionsDto
     public static PermissionsDto AdminAll() => new()
     {
         ViewBookings = true, CreateBookings = true, ConfirmBookings = true, DeleteBookings = true,
-        ViewPayments = true, ManagePayments = true,
         ViewMembers  = true, ManageMembers  = true,
         ViewAllComplaints = true, RespondComplaints = true,
         ViewDashboard = true, ViewReports = true

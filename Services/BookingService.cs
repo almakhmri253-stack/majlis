@@ -77,7 +77,6 @@ public class BookingService : IBookingService
     {
         var booking = await _db.Bookings
             .Include(b => b.User)
-            .Include(b => b.Payment)
             .FirstOrDefaultAsync(b => b.Id == id)
             ?? throw new KeyNotFoundException("الحجز غير موجود");
 
@@ -88,7 +87,6 @@ public class BookingService : IBookingService
     {
         var query = _db.Bookings
             .Include(b => b.User)
-            .Include(b => b.Payment)
             .AsQueryable();
 
         if (filter.From.HasValue)
@@ -199,7 +197,6 @@ public class BookingService : IBookingService
     {
         var query = _db.Bookings
             .Include(b => b.User)
-            .Include(b => b.Payment)
             .Where(b => b.Status != BookingStatus.Cancelled
                      && b.StartDate < end.Date
                      && b.EndDate > start.Date);
@@ -227,12 +224,5 @@ public class BookingService : IBookingService
         AdminNote = b.AdminNote,
         Cost = b.Cost,
         CreatedAt = b.CreatedAt,
-        Payment = b.Payment == null ? null : new PaymentSummaryDto
-        {
-            TotalAmount = b.Payment.TotalAmount,
-            PaidAmount = b.Payment.PaidAmount,
-            RemainingAmount = b.Payment.TotalAmount - b.Payment.PaidAmount,
-            Status = b.Payment.Status.ToString()
-        }
     };
 }

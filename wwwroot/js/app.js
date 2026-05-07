@@ -243,7 +243,6 @@ function can(key) {
   const map = {
     viewBookings:    'viewBookings',    createBookings:  'createBookings',
     confirmBookings: 'confirmBookings', deleteBookings:  'deleteBookings',
-    viewPayments:    'viewPayments',    managePayments:  'managePayments',
     viewMembers:     'viewMembers',     manageMembers:   'manageMembers',
     viewAllComplaints:'viewAllComplaints', respondComplaints:'respondComplaints',
     viewDashboard:   'viewDashboard',   viewReports:     'viewReports',
@@ -270,7 +269,6 @@ function applyNavPermissions() {
   const rules = {
     dashboard:  'viewDashboard',
     bookings:   'viewBookings',
-    payments:   'viewPayments',
     members:    'viewMembers',
     complaints: false, // مرئي دائماً
     users:      null,  // مخفي دائماً للمستخدم العادي
@@ -302,7 +300,6 @@ function applyNavPermissions() {
 const PAGE_TITLES = {
   dashboard:  'الرئيسية',
   bookings:   'الحجوزات',
-  payments:   'المدفوعات',
   members:    'أعضاء الجمعية',
   complaints: 'الشكاوى والمقترحات',
   users:      'المستخدمون والصلاحيات',
@@ -311,8 +308,8 @@ const PAGE_TITLES = {
 function navigate(page) {
   // حماية — تحقق من الصلاحية قبل الانتقال
   const pagePerms = { dashboard:'viewDashboard', bookings:'viewBookings',
-                      payments:'viewPayments',   members:'viewMembers',
-                      complaints: false,          users: null };
+                      members:'viewMembers',
+                      complaints: false,  users: null };
   const perm = pagePerms[page];
   if (perm === null && !isAdmin())      { toast('هذه الصفحة للمدير فقط', 'error'); return; }
   if (perm && !can(perm))               { toast('ليس لديك صلاحية لهذه الصفحة', 'error'); return; }
@@ -327,7 +324,7 @@ function navigate(page) {
   document.getElementById('headerTitle').textContent = PAGE_TITLES[page] || page;
   if (window.innerWidth < 768) closeSidebar();
 
-  const loaders = { dashboard: loadDashboard, bookings: loadBookings, payments: loadPayments, members: loadMembers, complaints: loadComplaints, users: loadUsers };
+  const loaders = { dashboard: loadDashboard, bookings: loadBookings, members: loadMembers, complaints: loadComplaints, users: loadUsers };
   loaders[page]?.();
 }
 
@@ -374,8 +371,6 @@ function fmtMoney(n) { return Number(n || 0).toLocaleString('ar-OM') + ' ر.ع';
 const typeLabel = { Wedding: '💍 زواج', Condolence: '🕊 عزاء', General: '🎉 عام' };
 const statusLabel = { Pending: 'قيد الانتظار', Confirmed: 'مؤكد', Cancelled: 'ملغي', Completed: 'مكتمل' };
 const statusClass = { Pending: 'badge-pending', Confirmed: 'badge-confirmed', Cancelled: 'badge-cancelled', Completed: 'badge-completed' };
-const payClass    = { Unpaid: 'badge-unpaid', Partial: 'badge-partial', Paid: 'badge-paid' };
-const payLabel    = { Unpaid: 'غير مدفوع', Partial: 'جزئي', Paid: 'مدفوع' };
 const typeClass   = { Wedding: 'badge-wedding', Condolence: 'badge-condolence', General: 'badge-general' };
 const monthNames  = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
@@ -889,9 +884,9 @@ function renderStats(s) {
   const grid = document.getElementById('statsGrid');
   const allCards = [
     { perm:'viewBookings', icon: '📅', label: 'الحجوزات هذا الشهر', value: s.thisMonthBookings, sub: `${s.pendingBookings} قيد الانتظار`, color: '#2563eb', bg: '#eff6ff' },
-    { perm:'viewPayments', icon: '💰', label: 'إجمالي المدفوع',    money: s.memberTotalPaid,    sub: `من اشتراكات الأعضاء`, color: '#059669', bg: '#ecfdf5' },
-    { perm:'viewPayments', icon: '⏳', label: 'إجمالي المتأخرات',  money: s.memberTotalOverdue, sub: `متأخرات الأعضاء`,      color: '#dc2626', bg: '#fef2f2' },
-    { perm:'viewMembers',  icon: '👥', label: 'الأعضاء النشطون',     value: s.activeMembers,     sub: `الإجمالي: ${s.totalMembers}`,      color: '#7c3aed', bg: '#f5f3ff' },
+    { perm:'viewMembers',  icon: '💰', label: 'إجمالي المدفوع',      money: s.memberTotalPaid,    sub: `من اشتراكات الأعضاء`, color: '#059669', bg: '#ecfdf5' },
+    { perm:'viewMembers',  icon: '⏳', label: 'إجمالي المتأخرات',    money: s.memberTotalOverdue, sub: `متأخرات الأعضاء`,      color: '#dc2626', bg: '#fef2f2' },
+    { perm:'viewMembers',  icon: '👥', label: 'الأعضاء النشطون',     value: s.activeMembers,      sub: `الإجمالي: ${s.totalMembers}`,      color: '#7c3aed', bg: '#f5f3ff' },
   ];
   const cards = isAdmin() ? allCards : allCards.filter(c => can(c.perm));
   if (!cards.length) { grid.innerHTML = ''; return; }
@@ -965,11 +960,9 @@ function renderRecentComplaints(list) {
 
 function updateBadges(s) {
   const pb = document.getElementById('pendingBadge');
-  if (s.pendingBookings > 0) { pb.textContent = s.pendingBookings; pb.style.display = ''; }
-  const ob = document.getElementById('overdueBadge');
-  if (s.overdueCount > 0) { ob.textContent = s.overdueCount; ob.style.display = ''; }
+  if (pb && s.pendingBookings > 0) { pb.textContent = s.pendingBookings; pb.style.display = ''; }
   const cb = document.getElementById('complaintsBadge');
-  if (s.newComplaints > 0) { cb.textContent = s.newComplaints; cb.style.display = ''; }
+  if (cb && s.newComplaints > 0) { cb.textContent = s.newComplaints; cb.style.display = ''; }
 }
 
 /* ════════════════════════════════════════════════════════════════
@@ -1017,7 +1010,6 @@ function renderBookingsTable() {
     <thead><tr>
       <th>#</th><th>صاحب المناسبة</th><th>التاريخ</th><th>المدة</th>
       <th>النوع</th><th>الحالة</th><th>التكلفة</th>
-      ${isAdmin ? '<th>الدفع</th>' : ''}
       <th>إجراءات</th>
     </tr></thead>
     <tbody>${rows.map((b, i) => `
@@ -1032,7 +1024,6 @@ function renderBookingsTable() {
         <td>${badge(typeClass[b.type] || '', typeLabel[b.type] || b.type)}</td>
         <td>${badge(statusClass[b.status] || '', statusLabel[b.status] || b.status)}</td>
         <td>${fmtMoney(b.cost)}</td>
-        ${isAdmin ? `<td>${b.payment ? badge(payClass[b.payment.status] || '', payLabel[b.payment.status] || b.payment.status) : '<span style="color:var(--text-3);font-size:12px">-</span>'}</td>` : ''}
         <td>
           <div class="actions">
             <button class="btn-icon view" title="التفاصيل" onclick="viewBooking(${b.id})">👁</button>
@@ -1087,18 +1078,6 @@ async function viewBooking(id) {
       </div>
       ${b.notes ? `<div class="detail-section"><h4>ملاحظات</h4><p style="font-size:13.5px;color:var(--text-2)">${b.notes}</p></div>` : ''}
       ${b.adminNote ? `<div class="detail-section" style="border-right:3px solid var(--warning);padding-right:12px;background:var(--warning-bg)"><h4>ملاحظة الإدارة</h4><p style="font-size:13.5px;color:var(--warning)">${b.adminNote}</p></div>` : ''}
-      ${b.payment ? `
-      <div class="detail-section">
-        <h4>حالة الدفع</h4>
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <span>${badge(payClass[b.payment.status]||'', payLabel[b.payment.status]||b.payment.status)}</span>
-          <span style="font-size:13px;font-weight:600">${fmtMoney(b.payment.paidAmount)} / ${fmtMoney(b.payment.totalAmount)}</span>
-        </div>
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:${b.payment.totalAmount>0 ? Math.round(b.payment.paidAmount/b.payment.totalAmount*100) : 0}%"></div></div>
-          <div class="progress-text">متبقي: ${fmtMoney(b.payment.remainingAmount)}</div>
-        </div>
-      </div>` : ''}
       ${isAdmin ? `
       <div class="detail-section">
         <h4>إجراءات الإدارة</h4>
@@ -1199,108 +1178,6 @@ async function submitBooking() {
     toast(id ? 'تم تحديث الحجز' : 'تم إنشاء الحجز', 'success');
     closeModal('bookingModal');
     loadBookings();
-  } catch (err) { handleErr(err); }
-}
-
-/* ════════════════════════════════════════════════════════════════
-   PAYMENTS
-════════════════════════════════════════════════════════════════ */
-async function loadPayments() {
-  document.getElementById('paymentsTable').innerHTML = '<div class="loading-center">جارٍ التحميل...</div>';
-  try {
-    const [overdue, memberDelinquent, stats] = await Promise.all([
-      API.get('/payments/overdue'),
-      API.get('/members/delinquent'),
-      API.get('/dashboard/stats'),
-    ]);
-    if (!stats) return;
-    const memberOverdueTotal = (memberDelinquent || []).reduce((s, m) => s + (m.overdueAmount || 0), 0);
-    renderPaymentStats(stats, memberDelinquent || [], memberOverdueTotal);
-    renderPaymentsTable(overdue, memberDelinquent || []);
-  } catch (err) { handleErr(err); }
-}
-
-function renderPaymentStats(s, memberDelinquent, memberOverdueTotal) {
-  const grid = document.getElementById('paymentStats');
-  const cards = [
-    { icon: '💵', label: 'الإيرادات المحصّلة', money: s.totalRevenue, color: '#059669', bg: '#ecfdf5' },
-    { icon: '⏳', label: 'متأخرات الحجوزات', money: s.pendingPayments, color: '#dc2626', bg: '#fef2f2' },
-    { icon: '👥', label: 'متأخرات الأعضاء', money: memberOverdueTotal, color: '#7c3aed', bg: '#f5f3ff' },
-    { icon: '🔔', label: 'حجوزات بدون دفع', value: s.overdueCount, color: '#d97706', bg: '#fffbeb' },
-    { icon: '⚠️', label: 'أعضاء متأخرون', value: memberDelinquent.length, color: '#b91c1c', bg: '#fff1f2' },
-  ];
-  grid.innerHTML = cards.map(c => `
-    <div class="stat-card" style="--stat-color:${c.color};--stat-bg:${c.bg}">
-      <div class="stat-card-row">
-        <div class="stat-text">
-          <div class="stat-label">${c.label}</div>
-          <div class="stat-value">${c.money != null ? fmtMoney(c.money) : (c.value||0).toLocaleString('ar-SA')}</div>
-        </div>
-        <div class="stat-icon-bubble">${c.icon}</div>
-      </div>
-      <div class="stat-bottom-bar"></div>
-    </div>`).join('');
-}
-
-function renderPaymentsTable(bookingList, memberList) {
-  const el = document.getElementById('paymentsTable');
-  const hasBookings = bookingList.length > 0;
-  const hasMembers  = memberList.length > 0;
-  if (!hasBookings && !hasMembers) {
-    el.innerHTML = '<div class="empty-state"><div class="empty-icon">🎉</div><p>لا توجد مبالغ متأخرة</p></div>';
-    return;
-  }
-
-  const bookingRows = bookingList.map(p => `
-    <tr>
-      <td><span class="type-badge booking">حجز</span></td>
-      <td><strong>${p.guestName}</strong></td>
-      <td>${fmtMoney(p.totalAmount)}</td>
-      <td style="color:var(--success);font-weight:600">${fmtMoney(p.paidAmount)}</td>
-      <td style="color:var(--danger);font-weight:600">${fmtMoney(p.remainingAmount)}</td>
-      <td>${badge(payClass[p.status]||'', payLabel[p.status]||p.status)}</td>
-      <td>
-        <button class="btn-icon pay" title="إضافة دفعة" onclick="openPaymentModal(${p.id},'${p.guestName}',${p.remainingAmount})">💳</button>
-      </td>
-    </tr>`).join('');
-
-  const memberRows = memberList.map(m => `
-    <tr class="row-member-overdue">
-      <td><span class="type-badge member">عضو</span></td>
-      <td><strong>${m.fullName}</strong></td>
-      <td>${fmtMoney(m.totalPaymentDue)}</td>
-      <td style="color:var(--success);font-weight:600">${fmtMoney(m.paidAmount)}</td>
-      <td style="color:var(--danger);font-weight:600">${fmtMoney(m.overdueAmount)}</td>
-      <td><span class="badge badge-danger">متأخر</span></td>
-      <td>
-        <button class="btn-icon pay" title="تسجيل دفع" onclick="openMemberPayModal(${m.id},'${m.fullName}')">💳</button>
-      </td>
-    </tr>`).join('');
-
-  el.innerHTML = `<table>
-    <thead><tr><th>النوع</th><th>الاسم</th><th>المبلغ الإجمالي</th><th>المدفوع</th><th>المتأخر</th><th>الحالة</th><th>إجراءات</th></tr></thead>
-    <tbody>${bookingRows}${memberRows}</tbody></table>`;
-}
-
-function openPaymentModal(paymentId, guestName, remaining) {
-  document.getElementById('paymentIdInput').value = paymentId;
-  document.getElementById('paymentModalInfo').textContent = `${guestName} — المتبقي: ${fmtMoney(remaining)}`;
-  document.getElementById('paymentAmount').value = '';
-  document.getElementById('paymentNote').value   = '';
-  openModal('paymentModal');
-}
-
-async function submitPaymentTransaction() {
-  const id     = document.getElementById('paymentIdInput').value;
-  const amount = parseFloat(document.getElementById('paymentAmount').value);
-  const note   = document.getElementById('paymentNote').value;
-  if (!amount || amount <= 0) { toast('أدخل مبلغاً صحيحاً', 'error'); return; }
-  try {
-    await API.post(`/payments/${id}/transactions`, { amount, note });
-    invalidateDashCache();
-    toast('تم تسجيل الدفعة', 'success');
-    closeModal('paymentModal');
-    loadPayments();
   } catch (err) { handleErr(err); }
 }
 
@@ -1688,8 +1565,7 @@ async function submitMemberPay() {
     await API.post(`/members/${memberId}/payments`, { year, month, amount });
     toast(`تم تسجيل دفع ${monthNames[month]} ${year}`, 'success');
     closeModal('memberPayModal');
-    if (S.page === 'payments') loadPayments();
-    else loadMembers();
+    loadMembers();
   } catch (err) { handleErr(err); }
 }
 
@@ -1828,7 +1704,6 @@ async function submitComplaintResponse() {
 const UNIFIED_KEYS = [
   ['uViewBookings','viewBookings'], ['uCreateBookings','createBookings'],
   ['uConfirmBookings','confirmBookings'], ['uDeleteBookings','deleteBookings'],
-  ['uViewPayments','viewPayments'], ['uManagePayments','managePayments'],
   ['uViewMembers','viewMembers'], ['uManageMembers','manageMembers'],
   ['uViewAllComplaints','viewAllComplaints'], ['uRespondComplaints','respondComplaints'],
   ['uViewDashboard','viewDashboard'], ['uViewReports','viewReports'],
@@ -1837,7 +1712,6 @@ const UNIFIED_KEYS = [
 const DEFAULT_UNIFIED = {
   viewDashboard:true, viewBookings:true, createBookings:true,
   confirmBookings:false, deleteBookings:false,
-  viewPayments:false, managePayments:false,
   viewMembers:false, manageMembers:false,
   viewAllComplaints:false, respondComplaints:false, viewReports:false,
 };
@@ -2226,8 +2100,6 @@ async function openPermissionsModal(userId, userName) {
     document.getElementById('pCreateBookings').checked    = p.createBookings;
     document.getElementById('pConfirmBookings').checked   = p.confirmBookings;
     document.getElementById('pDeleteBookings').checked    = p.deleteBookings;
-    document.getElementById('pViewPayments').checked      = p.viewPayments;
-    document.getElementById('pManagePayments').checked    = p.managePayments;
     document.getElementById('pViewMembers').checked       = p.viewMembers;
     document.getElementById('pManageMembers').checked     = p.manageMembers;
     document.getElementById('pViewAllComplaints').checked = p.viewAllComplaints;
@@ -2248,7 +2120,6 @@ function updatePermCount() {
 
 const PERM_IDS = [
   'pViewBookings','pCreateBookings','pConfirmBookings','pDeleteBookings',
-  'pViewPayments','pManagePayments',
   'pViewMembers','pManageMembers',
   'pViewAllComplaints','pRespondComplaints',
   'pViewDashboard','pViewReports'
@@ -2256,20 +2127,20 @@ const PERM_IDS = [
 
 const PERM_PRESETS = {
   none:    { pViewBookings:false,pCreateBookings:false,pConfirmBookings:false,pDeleteBookings:false,
-             pViewPayments:false,pManagePayments:false,pViewMembers:false,pManageMembers:false,
+             pViewMembers:false,pManageMembers:false,
              pViewAllComplaints:false,pRespondComplaints:false,pViewDashboard:false,pViewReports:false },
   // الصلاحيات الافتراضية عند إنشاء حساب جديد
   default: { pViewBookings:true, pCreateBookings:true, pConfirmBookings:false,pDeleteBookings:false,
-             pViewPayments:false,pManagePayments:false,pViewMembers:false,pManageMembers:false,
+             pViewMembers:false,pManageMembers:false,
              pViewAllComplaints:false,pRespondComplaints:false,pViewDashboard:true, pViewReports:false },
   view:    { pViewBookings:true, pCreateBookings:false,pConfirmBookings:false,pDeleteBookings:false,
-             pViewPayments:true, pManagePayments:false,pViewMembers:true, pManageMembers:false,
+             pViewMembers:true, pManageMembers:false,
              pViewAllComplaints:false,pRespondComplaints:false,pViewDashboard:true, pViewReports:false },
   standard:{ pViewBookings:true, pCreateBookings:true, pConfirmBookings:true, pDeleteBookings:false,
-             pViewPayments:true, pManagePayments:false,pViewMembers:true, pManageMembers:false,
+             pViewMembers:true, pManageMembers:false,
              pViewAllComplaints:true, pRespondComplaints:false,pViewDashboard:true, pViewReports:false },
   full:    { pViewBookings:true, pCreateBookings:true, pConfirmBookings:true, pDeleteBookings:true,
-             pViewPayments:true, pManagePayments:true, pViewMembers:true, pManageMembers:true,
+             pViewMembers:true, pManageMembers:true,
              pViewAllComplaints:true, pRespondComplaints:true, pViewDashboard:true, pViewReports:true },
 };
 
@@ -2296,8 +2167,6 @@ async function savePermissions() {
     createBookings:    document.getElementById('pCreateBookings').checked,
     confirmBookings:   document.getElementById('pConfirmBookings').checked,
     deleteBookings:    document.getElementById('pDeleteBookings').checked,
-    viewPayments:      document.getElementById('pViewPayments').checked,
-    managePayments:    document.getElementById('pManagePayments').checked,
     viewMembers:       document.getElementById('pViewMembers').checked,
     manageMembers:     document.getElementById('pManageMembers').checked,
     viewAllComplaints: document.getElementById('pViewAllComplaints').checked,

@@ -110,7 +110,6 @@ builder.Services.AddRateLimiter(opt =>
 // ── Services ─────────────────────────────────────────────────────────────────
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBookingService, BookingService>();
-builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IComplaintService, ComplaintService>();
 builder.Services.AddScoped<IMemberService, MemberService>();
 builder.Services.AddScoped<IEventService, EventService>();
