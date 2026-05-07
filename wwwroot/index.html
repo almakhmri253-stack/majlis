@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>مجلس المخامره الشرقي</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0f2244" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- iOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="المجلس" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/style.css?v=14" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     شاشة تسجيل الدخول
+══════════════════════════════════════════════════════════════ -->
+<div id="loginScreen" class="login-screen">
+  <div class="login-bg">
+    <div class="login-shape s1"></div>
+    <div class="login-shape s2"></div>
+    <div class="login-shape s3"></div>
+  </div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">م</div>
+      <h1>مجلس المخامره الشرقي</h1>
+      <p>نظام إدارة المجلس</p>
+    </div>
+
+    <!-- تبويبات تسجيل الدخول / إنشاء حساب -->
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin" onclick="switchAuthTab('login')">تسجيل الدخول</button>
+      <button class="auth-tab" id="tabRegister" onclick="switchAuthTab('register')">إنشاء حساب</button>
+    </div>
+
+    <!-- نموذج تسجيل الدخول -->
+    <form id="loginForm" class="login-form" novalidate>
+      <div class="field-group">
+        <label>البريد الإلكتروني</label>
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+          <input type="email" id="loginEmail" placeholder="admin@majlis.com" required />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>كلمة المرور</label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="loginPassword" placeholder="••••••••" required />
+          <button type="button" class="toggle-pass" onclick="togglePass('loginPassword')">👁</button>
+        </div>
+      </div>
+      <div id="loginError" class="form-error hidden"></div>
+      <button type="submit" class="btn-login" id="loginBtn">
+        <span class="btn-text">تسجيل الدخول</span>
+        <span class="btn-loader hidden">جارٍ التحقق...</span>
+      </button>
+    </form>
+
+    <!-- نموذج إنشاء حساب -->
+    <form id="registerForm" class="login-form hidden" novalidate>
+      <div class="field-group">
+        <label>الاسم الكامل <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">👤</span>
+          <input type="text" id="regFullName" placeholder="أدخل اسمك الكامل" required />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>رقم الجوال <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">📱</span>
+          <input type="tel" id="regPhone" placeholder="05xxxxxxxx" required />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>البريد الإلكتروني <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+          <input type="email" id="regEmail" placeholder="example@email.com" required />
+        </div>
+      </div>
+      <div class="field-group">
+        <label>كلمة المرور <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="regPassword" placeholder="6 أحرف على الأقل" required />
+          <button type="button" class="toggle-pass" onclick="togglePass('regPassword')">👁</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>تأكيد كلمة المرور <span class="req">*</span></label>
+        <div class="input-wrap">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="regConfirm" placeholder="أعد كتابة كلمة المرور" required />
+        </div>
+      </div>
+      <div id="registerError" class="form-error hidden"></div>
+      <button type="submit" class="btn-login" id="registerBtn">
+        <span class="btn-text">إنشاء الحساب</span>
+        <span class="btn-loader hidden">جارٍ الإنشاء...</span>
+      </button>
+    </form>
+
+    <p class="login-hint">نظام مخصص لإدارة مجلس المخامره الشرقي</p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     الهيكل الرئيسي للتطبيق
+══════════════════════════════════════════════════════════════ -->
+<div id="appShell" class="app-shell hidden">
+
+  <!-- Sidebar -->
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">م</div>
+      <div class="sidebar-title">
+        <span class="title-main">مجلس المخامره الشرقي</span>
+        <span class="title-sub">لوحة الإدارة</span>
+      </div>
+      <button class="sidebar-close" onclick="toggleSidebar()">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">القائمة الرئيسية</div>
+      <a class="nav-item" data-page="dashboard" onclick="navigate('dashboard')">
+        <span class="nav-icon">🏠</span>
+        <span>الرئيسية</span>
+      </a>
+      <a class="nav-item" data-page="bookings" onclick="navigate('bookings')">
+        <span class="nav-icon">📅</span>
+        <span>الحجوزات</span>
+        <span class="nav-badge" id="pendingBadge" style="display:none"></span>
+      </a>
+      <a class="nav-item" data-page="payments" onclick="navigate('payments')">
+        <span class="nav-icon">💰</span>
+        <span>المدفوعات</span>
+        <span class="nav-badge danger" id="overdueBadge" style="display:none"></span>
+      </a>
+      <a class="nav-item" data-page="members" onclick="navigate('members')">
+        <span class="nav-icon">👥</span>
+        <span>أعضاء الجمعية</span>
+      </a>
+      <a class="nav-item" data-page="complaints" onclick="navigate('complaints')">
+        <span class="nav-icon">📝</span>
+        <span>الشكاوى والمقترحات</span>
+        <span class="nav-badge danger" id="complaintsBadge" style="display:none"></span>
+      </a>
+
+      <div class="nav-section-label" style="margin-top:10px">الإعدادات</div>
+      <a class="nav-item" data-page="users" onclick="navigate('users')">
+        <span class="nav-icon">🔐</span>
+        <span>المستخدمون والصلاحيات</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user" id="sidebarUser">
+        <div class="user-avatar" id="userAvatar">م</div>
+        <div class="user-info">
+          <span class="user-name" id="userName">-</span>
+          <span class="user-role" id="userRole">-</span>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">تسجيل خروج</button>
+    </div>
+  </aside>
+
+  <!-- Overlay for mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <!-- Main Wrapper -->
+  <div class="main-wrapper">
+
+    <!-- Header -->
+    <header class="header">
+      <button class="hamburger" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="header-title" id="headerTitle">الرئيسية</div>
+      <div class="header-actions">
+        <div class="header-user" id="headerUser">
+          <div class="header-avatar" id="headerAvatar">م</div>
+          <span id="headerUserName">مدير النظام</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Pages Container -->
+    <main class="content" id="content">
+
+      <!-- ══ صفحة الرئيسية ══ -->
+      <section id="page-dashboard" class="page">
+
+        <!-- بطاقة الترحيب -->
+        <div class="dash-hero">
+          <div class="dash-hero-deco d1"></div>
+          <div class="dash-hero-deco d2"></div>
+          <div class="dash-hero-deco d3"></div>
+          <div class="dash-hero-inner">
+            <div class="dash-hero-left">
+              <div class="dash-hero-greeting" id="dashGreeting">مرحباً</div>
+              <div class="dash-hero-name" id="dashHeroName">المدير</div>
+              <div class="dash-hero-sub">مجلس المخامره الشرقي &mdash; لوحة الإدارة</div>
+            </div>
+            <div class="dash-hero-right">
+              <div class="dash-hero-time" id="dashHeroTime">00:00</div>
+              <div class="dash-hero-date" id="dashHeroDate"></div>
+              <div class="dash-hero-day"  id="dashHeroDay"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- إحصائيات -->
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+        </div>
+
+        <!-- آخر الأحداث — مباشرة بعد الإحصائيات -->
+        <div class="dash-section" style="margin-top:22px">
+          <div class="dash-section-hdr">
+            <div class="dash-section-ttl"><span>📰</span> آخر الأحداث</div>
+            <button id="addEventBtn" class="btn-sm btn-primary hidden" onclick="openEventModal()">➕ إضافة حدث</button>
+          </div>
+          <div id="eventsList" class="events-list"></div>
+        </div>
+
+        <!-- الشبكة الرئيسية: حجوزات + شكاوى -->
+        <div class="dashboard-grid" style="margin-top:22px">
+          <div class="dash-panel" id="upcomingPanel">
+            <div class="dash-panel-header">
+              <div class="dash-panel-title"><span class="dph-icon">📅</span> الحجوزات القادمة</div>
+              <a onclick="navigate('bookings')" class="card-link">عرض الكل ←</a>
+            </div>
+            <div class="dash-panel-body" id="upcomingList"><div class="loading-text">جارٍ التحميل...</div></div>
+          </div>
+          <div class="dash-panel" id="adminComplaintsCard">
+            <div class="dash-panel-header">
+              <div class="dash-panel-title"><span class="dph-icon">📝</span> الشكاوى الجديدة</div>
+              <a onclick="navigate('complaints')" class="card-link">عرض الكل ←</a>
+            </div>
+            <div class="dash-panel-body" id="recentComplaints"><div class="loading-text">جارٍ التحميل...</div></div>
+          </div>
+        </div>
+
+        <!-- إعلانات المجتمع -->
+        <div class="dash-section" style="margin-top:20px">
+          <div class="dash-section-hdr">
+            <div class="dash-section-ttl"><span>📢</span> إعلانات المجتمع</div>
+            <button class="btn-sm btn-primary" onclick="openNewComplaintModal()">✉️ إرسال مقترح</button>
+          </div>
+          <div class="dash-section-body" id="publicBoard"><div class="loading-text">جارٍ التحميل...</div></div>
+        </div>
+
+      </section>
+
+      <!-- ══ صفحة الحجوزات ══ -->
+      <section id="page-bookings" class="page">
+        <div class="page-header">
+          <h2 class="page-title">الحجوزات</h2>
+          <button class="btn-primary" id="addBookingBtn" onclick="openBookingModal()">➕ حجز جديد</button>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-bar">
+          <div class="filter-tabs" id="bookingStatusTabs">
+            <button class="tab active" data-status="">الكل</button>
+            <button class="tab" data-status="Pending">قيد الانتظار</button>
+            <button class="tab" data-status="Confirmed">مؤكد</button>
+            <button class="tab" data-status="Completed">مكتمل</button>
+            <button class="tab" data-status="Cancelled">ملغي</button>
+          </div>
+          <div class="filter-inputs">
+            <input type="text" id="bookingSearch" placeholder="🔍  بحث بالاسم..." oninput="filterBookings()" class="search-input" />
+            <select id="bookingType" onchange="filterBookings()" class="select-input">
+              <option value="">كل الأنواع</option>
+              <option value="Wedding">زواج</option>
+              <option value="Condolence">عزاء</option>
+              <option value="General">مناسبة عامة</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap" id="bookingsTable">
+            <div class="loading-center">جارٍ التحميل...</div>
+          </div>
+          <div class="pagination" id="bookingsPagination"></div>
+        </div>
+      </section>
+
+      <!-- ══ صفحة المدفوعات ══ -->
+      <section id="page-payments" class="page">
+        <div class="page-header">
+          <h2 class="page-title">المدفوعات</h2>
+        </div>
+        <div class="stats-grid mini" id="paymentStats">
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>المتأخرون في الدفع</h3>
+          </div>
+          <div class="table-wrap" id="paymentsTable">
+            <div class="loading-center">جارٍ التحميل...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ صفحة الأعضاء ══ -->
+      <section id="page-members" class="page">
+        <div class="page-header">
+          <h2 class="page-title">أعضاء الجمعية</h2>
+          <button class="btn-primary admin-only" id="btnAddMember" onclick="openMemberModal()">➕ عضو جديد</button>
+        </div>
+
+        <!-- إحصائيات الأعضاء -->
+        <div class="stats-grid stats-centered" id="memberStatsBar" style="margin-bottom:20px">
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-tabs" id="memberTabs">
+            <button class="tab active" data-filter="all">جميع الأعضاء</button>
+            <button class="tab danger" data-filter="delinquent">المتأخرون</button>
+          </div>
+          <input type="text" id="memberSearch" placeholder="🔍  بحث بالاسم أو الجوال..." oninput="filterMembers()" class="search-input" />
+        </div>
+
+        <div class="card">
+          <div class="table-wrap" id="membersTable">
+            <div class="loading-center">جارٍ التحميل...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ══ صفحة الشكاوى ══ -->
+      <section id="page-complaints" class="page">
+        <div class="page-header">
+          <h2 class="page-title">الشكاوى والمقترحات</h2>
+          <button class="btn-primary" onclick="openNewComplaintModal()">✉️ إرسال شكوى / مقترح</button>
+        </div>
+
+        <div class="filter-bar">
+          <div class="filter-tabs" id="complaintTabs">
+            <button class="tab active" data-status="">الكل</button>
+            <button class="tab danger" data-status="New">جديد</button>
+            <button class="tab warning" data-status="UnderReview">قيد المراجعة</button>
+            <button class="tab success" data-status="Resolved">تم الحل</button>
+          </div>
+        </div>
+
+        <div class="complaints-list" id="complaintsList">
+          <div class="loading-center">جارٍ التحميل...</div>
+        </div>
+      </section>
+
+      <!-- ══ صفحة المستخدمين ══ -->
+      <section id="page-users" class="page">
+        <div class="page-header">
+          <h2 class="page-title">المستخدمون والصلاحيات</h2>
+          <button class="btn-primary" onclick="openAddUserModal()">➕ مستخدم جديد</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid mini" id="usersStats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+          <div class="stat-card skeleton"></div>
+        </div>
+
+        <!-- الصلاحيات الموحّدة -->
+        <div class="unified-perms-card" id="unifiedPermsCard">
+          <div class="unified-perms-hdr">
+            <div class="unified-perms-title">
+              <span class="unified-perms-icon">🔐</span>
+              <div>
+                <div class="unified-perms-label">الصلاحيات الموحّدة لجميع المستخدمين</div>
+                <div class="unified-perms-sub">هذه الصلاحيات تُطبَّق على المستخدمين الجدد وعند الضغط على "توحيد"</div>
+              </div>
+            </div>
+            <button class="btn-primary" onclick="applyUnifiedPerms()">
+              <span id="unifyBtnText">تطبيق على الجميع</span>
+            </button>
+          </div>
+          <div class="unified-perms-body">
+            <div class="unified-perm-group">
+              <div class="unified-perm-group-label">📅 الحجوزات</div>
+              <label class="sw"><input type="checkbox" id="uViewBookings"    onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>عرض</span>
+              <label class="sw"><input type="checkbox" id="uCreateBookings"  onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>إنشاء</span>
+              <label class="sw"><input type="checkbox" id="uConfirmBookings" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>تأكيد/رفض</span>
+              <label class="sw"><input type="checkbox" id="uDeleteBookings"  onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>حذف</span>
+            </div>
+            <div class="unified-perm-group">
+              <div class="unified-perm-group-label">💰 المدفوعات</div>
+              <label class="sw"><input type="checkbox" id="uViewPayments"   onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>عرض</span>
+              <label class="sw"><input type="checkbox" id="uManagePayments" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>إدارة</span>
+            </div>
+            <div class="unified-perm-group">
+              <div class="unified-perm-group-label">👥 الأعضاء</div>
+              <label class="sw"><input type="checkbox" id="uViewMembers"   onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>عرض</span>
+              <label class="sw"><input type="checkbox" id="uManageMembers" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>إدارة</span>
+            </div>
+            <div class="unified-perm-group">
+              <div class="unified-perm-group-label">📝 الشكاوى</div>
+              <label class="sw"><input type="checkbox" id="uViewAllComplaints" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>عرض الكل</span>
+              <label class="sw"><input type="checkbox" id="uRespondComplaints" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>الرد</span>
+            </div>
+            <div class="unified-perm-group">
+              <div class="unified-perm-group-label">📊 الرئيسية</div>
+              <label class="sw"><input type="checkbox" id="uViewDashboard" onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>الرئيسية</span>
+              <label class="sw"><input type="checkbox" id="uViewReports"   onchange="saveUnifiedDraft()"><span class="sw-track"><span class="sw-thumb"></span></span></label><span>التقارير</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search + Filter -->
+        <div class="filter-bar">
+          <div class="filter-tabs" id="userRoleTabs">
+            <button class="tab active" data-role="">الكل</button>
+            <button class="tab" data-role="Admin">مدراء</button>
+            <button class="tab" data-role="User">مستخدمون</button>
+          </div>
+          <div class="filter-inputs">
+            <input type="text" id="userSearch" placeholder="🔍  بحث بالاسم أو البريد..." oninput="filterUsers()" class="search-input" />
+            <select id="userStatusFilter" onchange="filterUsers()" class="select-input">
+              <option value="">كل الحالات</option>
+              <option value="active">نشط</option>
+              <option value="inactive">موقوف</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="table-wrap" id="usersTable">
+            <div class="loading-center">جارٍ التحميل...</div>
+          </div>
+        </div>
+
+        <!-- سجل دخول المستخدمين -->
+        <div class="section-title-bar" style="margin-top:28px">
+          <span>🕐 سجل دخول المستخدمين</span>
+          <button class="btn-ghost" onclick="loadLoginLogs()" title="تحديث">↻ تحديث</button>
+        </div>
+        <div class="card">
+          <div class="table-wrap" id="loginLogsTable">
+            <div class="loading-center">جارٍ التحميل...</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     المودالات
+══════════════════════════════════════════════════════════════ -->
+
+<!-- مودال الحجز -->
+<div id="bookingModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="bookingModalTitle">حجز جديد</h3>
+      <button class="modal-close" onclick="closeModal('bookingModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="bookingForm" novalidate>
+        <input type="hidden" id="bookingId" />
+        <div class="form-row">
+          <div class="field-group">
+            <label>اسم صاحب المناسبة <span class="req">*</span></label>
+            <input type="text" id="bGuestName" class="form-control" placeholder="أدخل الاسم" required />
+          </div>
+          <div class="field-group">
+            <label>رقم الجوال <span class="req">*</span></label>
+            <input type="tel" id="bPhone" class="form-control" placeholder="05xxxxxxxx" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label>نوع المناسبة <span class="req">*</span></label>
+            <select id="bType" class="form-control" required>
+              <option value="">اختر النوع</option>
+              <option value="Wedding">💍 زواج</option>
+              <option value="Condolence">🕊 عزاء</option>
+              <option value="General">🎉 مناسبة عامة</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>التكلفة (ر.ع)</label>
+            <input type="number" id="bCost" class="form-control" placeholder="0" min="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label>تاريخ البداية <span class="req">*</span></label>
+            <input type="date" id="bStart" class="form-control" onchange="checkConflict()" required />
+          </div>
+          <div class="field-group">
+            <label>تاريخ النهاية <span class="req">*</span></label>
+            <input type="date" id="bEnd" class="form-control" onchange="checkConflict()" required />
+          </div>
+        </div>
+        <div id="conflictAlert" class="conflict-alert hidden"></div>
+        <div class="field-group">
+          <label>ملاحظات</label>
+          <textarea id="bNotes" class="form-control" rows="2" placeholder="أي ملاحظات إضافية..."></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('bookingModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitBooking()" id="bookingSubmitBtn">حفظ الحجز</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال تفاصيل الحجز (Admin) -->
+<div id="bookingDetailModal" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>تفاصيل الحجز</h3>
+      <button class="modal-close" onclick="closeModal('bookingDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="bookingDetailBody"></div>
+    <div class="modal-footer" id="bookingDetailFooter"></div>
+  </div>
+</div>
+
+<!-- مودال تفاصيل العضو -->
+<div id="memberDetailModal" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>ملف العضو</h3>
+      <button class="modal-close" onclick="closeModal('memberDetailModal')">✕</button>
+    </div>
+    <div class="modal-body" id="memberDetailBody"></div>
+    <div class="modal-footer" id="memberDetailFooter"></div>
+  </div>
+</div>
+
+<!-- مودال العضو -->
+<div id="memberModal" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 id="memberModalTitle">عضو جديد</h3>
+      <button class="modal-close" onclick="closeModal('memberModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="memberForm" novalidate>
+        <input type="hidden" id="memberId" />
+
+        <!-- معلومات أساسية -->
+        <div class="member-form-section">
+          <div class="member-form-section-title">👤 المعلومات الأساسية</div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>الاسم الكامل <span class="req">*</span></label>
+              <input type="text" id="mFullName" class="form-control" placeholder="أدخل الاسم الكامل" required />
+            </div>
+            <div class="field-group">
+              <label>رقم الجوال <span class="req">*</span></label>
+              <input type="tel" id="mPhone" class="form-control" placeholder="05xxxxxxxx" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>رقم الهوية</label>
+              <input type="text" id="mNationalId" class="form-control" placeholder="1xxxxxxxxx" />
+            </div>
+            <div class="field-group">
+              <label>العنوان</label>
+              <input type="text" id="mAddress" class="form-control" placeholder="العنوان (اختياري)" />
+            </div>
+          </div>
+        </div>
+
+        <!-- معلومات المدفوعات -->
+        <div class="member-form-section">
+          <div class="member-form-section-title">💰 بيانات الاشتراك والمدفوعات</div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>إجمالي مبلغ الدفع المطلوب (ريال) <span class="req">*</span></label>
+              <input type="number" id="mTotalDue" class="form-control" placeholder="0" min="0" step="0.01" oninput="calcOverdue()" />
+            </div>
+            <div class="field-group">
+              <label>المبلغ المدفوع (ريال) <span class="req">*</span></label>
+              <input type="number" id="mPaidAmount" class="form-control" placeholder="0" min="0" step="0.01" oninput="calcOverdue()" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field-group">
+              <label>المتأخرات (محسوبة تلقائياً)</label>
+              <div class="overdue-display" id="overdueDisplay">
+                <span id="overdueAmount" class="overdue-amount">0.00 ر.ع</span>
+                <span id="overdueStatus" class="overdue-ok">✓ لا يوجد متأخرات</span>
+              </div>
+            </div>
+            <div class="field-group">
+              <label>تاريخ آخر تحديث للدفع</label>
+              <input type="date" id="mLastPaymentDate" class="form-control" />
+            </div>
+          </div>
+          <div class="field-group">
+            <label>الاشتراك الشهري (ريال) — للمرجع</label>
+            <input type="number" id="mSubscription" class="form-control" placeholder="0" min="0" step="0.01" />
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('memberModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitMember()">💾 حفظ العضو</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال دفع اشتراك -->
+<div id="memberPayModal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>تسجيل دفع اشتراك</h3>
+      <button class="modal-close" onclick="closeModal('memberPayModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="memberPayName" class="modal-subtitle"></p>
+      <input type="hidden" id="memberPayId" />
+      <div class="form-row">
+        <div class="field-group">
+          <label>السنة</label>
+          <input type="number" id="payYear" class="form-control" min="2020" max="2030" />
+        </div>
+        <div class="field-group">
+          <label>الشهر</label>
+          <select id="payMonth" class="form-control">
+            <option value="1">يناير</option><option value="2">فبراير</option>
+            <option value="3">مارس</option><option value="4">أبريل</option>
+            <option value="5">مايو</option><option value="6">يونيو</option>
+            <option value="7">يوليو</option><option value="8">أغسطس</option>
+            <option value="9">سبتمبر</option><option value="10">أكتوبر</option>
+            <option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>المبلغ (ر.ع)</label>
+        <input type="number" id="payAmount" class="form-control" min="1" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('memberPayModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitMemberPay()">تسجيل الدفع</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال إرسال شكوى/مقترح جديد -->
+<div id="newComplaintModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✉️ إرسال شكوى أو مقترح</h3>
+      <button class="modal-close" onclick="closeModal('newComplaintModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-group">
+        <label>النوع <span class="req">*</span></label>
+        <div class="type-selector">
+          <label class="type-option" id="typeComplaint">
+            <input type="radio" name="ncType" value="Complaint" checked />
+            <span class="type-btn">🚨 شكوى</span>
+          </label>
+          <label class="type-option" id="typeSuggestion">
+            <input type="radio" name="ncType" value="Suggestion" />
+            <span class="type-btn">💡 اقتراح</span>
+          </label>
+        </div>
+      </div>
+      <div class="field-group">
+        <label>العنوان <span class="req">*</span></label>
+        <input type="text" id="ncTitle" class="form-control" placeholder="عنوان الشكوى أو المقترح" maxlength="200" />
+      </div>
+      <div class="field-group">
+        <label>التفاصيل <span class="req">*</span></label>
+        <textarea id="ncContent" class="form-control" rows="4" placeholder="اكتب تفاصيل شكواك أو مقترحك هنا..."></textarea>
+      </div>
+      <label class="perm-item" style="border:none;padding:8px 0">
+        <input type="checkbox" id="ncAnonymous" />
+        <span>إرسال بشكل مجهول (لن يظهر اسمك)</span>
+      </label>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('newComplaintModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitNewComplaint()">📤 إرسال</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال الرد على شكوى -->
+<div id="complaintModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>الرد على الملاحظة</h3>
+      <button class="modal-close" onclick="closeModal('complaintModal')">✕</button>
+    </div>
+    <div class="modal-body" id="complaintModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('complaintModal')">إغلاق</button>
+      <button class="btn-primary" onclick="submitComplaintResponse()" id="complaintRespondBtn">إرسال الرد</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال دفعة حجز -->
+<div id="paymentModal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>إضافة دفعة</h3>
+      <button class="modal-close" onclick="closeModal('paymentModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="paymentModalInfo" class="modal-subtitle"></p>
+      <input type="hidden" id="paymentIdInput" />
+      <div class="field-group">
+        <label>المبلغ (ر.ع) <span class="req">*</span></label>
+        <input type="number" id="paymentAmount" class="form-control" min="1" placeholder="0" required />
+      </div>
+      <div class="field-group">
+        <label>ملاحظة</label>
+        <input type="text" id="paymentNote" class="form-control" placeholder="اختياري" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('paymentModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitPaymentTransaction()">تسجيل الدفعة</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال إضافة مستخدم -->
+<div id="addUserModal" class="modal-overlay hidden">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>مستخدم جديد</h3>
+      <button class="modal-close" onclick="closeModal('addUserModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="addUserForm" novalidate>
+        <div class="form-row">
+          <div class="field-group">
+            <label>الاسم الكامل <span class="req">*</span></label>
+            <input type="text" id="auFullName" class="form-control" placeholder="أدخل الاسم" required />
+          </div>
+          <div class="field-group">
+            <label>رقم الجوال <span class="req">*</span></label>
+            <input type="tel" id="auPhone" class="form-control" placeholder="05xxxxxxxx" required />
+          </div>
+        </div>
+        <div class="field-group">
+          <label>البريد الإلكتروني <span class="req">*</span></label>
+          <input type="email" id="auEmail" class="form-control" placeholder="example@email.com" required />
+        </div>
+        <div class="form-row">
+          <div class="field-group">
+            <label>كلمة المرور <span class="req">*</span></label>
+            <input type="password" id="auPassword" class="form-control" placeholder="6 أحرف على الأقل" required />
+          </div>
+          <div class="field-group">
+            <label>الصلاحية</label>
+            <select id="auRole" class="form-control">
+              <option value="User">مستخدم عادي</option>
+              <option value="Admin">مدير</option>
+            </select>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('addUserModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitAddUser()">إضافة المستخدم</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال إعادة تعيين كلمة المرور -->
+<div id="resetPassModal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>إعادة تعيين كلمة المرور</h3>
+      <button class="modal-close" onclick="closeModal('resetPassModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p id="resetPassName" class="modal-subtitle"></p>
+      <input type="hidden" id="resetPassUserId" />
+      <div class="field-group">
+        <label>كلمة المرور الجديدة <span class="req">*</span></label>
+        <input type="password" id="resetPassNew" class="form-control" placeholder="6 أحرف على الأقل" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('resetPassModal')">إلغاء</button>
+      <button class="btn-primary" onclick="submitResetPass()">تعيين كلمة المرور</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال الصلاحيات -->
+<div id="permissionsModal" class="modal-overlay hidden">
+  <div class="modal modal-lg">
+    <div class="modal-header perm-modal-header">
+      <div class="perm-modal-title-wrap">
+        <div class="perm-modal-avatar" id="permUserAvatar">م</div>
+        <div>
+          <h3>صلاحيات المستخدم</h3>
+          <p id="permUserName"></p>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('permissionsModal')">✕</button>
+    </div>
+    <div class="modal-body perm-modal-body">
+      <input type="hidden" id="permUserId" />
+
+      <!-- شريط الملخص -->
+      <div class="perm-summary-bar">
+        <div class="perm-summary-item">
+          <span class="perm-summary-count" id="permEnabledCount">0</span>
+          <span class="perm-summary-label">مفعّلة</span>
+        </div>
+        <div class="perm-summary-divider"></div>
+        <div class="perm-summary-item">
+          <span class="perm-summary-count dim" id="permDisabledCount">12</span>
+          <span class="perm-summary-label">معطّلة</span>
+        </div>
+        <div class="perm-summary-presets">
+          <button type="button" class="preset-chip chip-none"     onclick="applyPermPreset('none')">بدون</button>
+          <button type="button" class="preset-chip chip-default"  onclick="applyPermPreset('default')">افتراضي</button>
+          <button type="button" class="preset-chip chip-view"     onclick="applyPermPreset('view')">عرض</button>
+          <button type="button" class="preset-chip chip-standard" onclick="applyPermPreset('standard')">قياسي</button>
+          <button type="button" class="preset-chip chip-full"     onclick="applyPermPreset('full')">كامل</button>
+        </div>
+      </div>
+
+      <!-- الحجوزات -->
+      <div class="perm-cat">
+        <div class="perm-cat-hdr">
+          <div class="perm-cat-icon-wrap" style="background:#eff6ff;color:#2563eb">📅</div>
+          <div class="perm-cat-label">الحجوزات</div>
+          <div class="perm-cat-actions">
+            <button type="button" onclick="toggleSection('bookings',true)"  class="perm-cat-btn">الكل</button>
+            <button type="button" onclick="toggleSection('bookings',false)" class="perm-cat-btn">لا شيء</button>
+          </div>
+        </div>
+        <div class="perm-rows">
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">عرض الحجوزات</span><span class="perm-row-desc">رؤية قائمة الحجوزات وتفاصيلها</span></div>
+            <label class="sw"><input type="checkbox" id="pViewBookings" data-section="bookings" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">إنشاء حجز</span><span class="perm-row-desc">إضافة حجوزات جديدة للمجلس</span></div>
+            <label class="sw"><input type="checkbox" id="pCreateBookings" data-section="bookings" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">تأكيد / رفض الحجوزات</span><span class="perm-row-desc">تغيير حالة الحجوزات المعلّقة</span></div>
+            <label class="sw"><input type="checkbox" id="pConfirmBookings" data-section="bookings" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">حذف الحجوزات</span><span class="perm-row-desc">إزالة الحجوزات من النظام نهائياً</span></div>
+            <label class="sw"><input type="checkbox" id="pDeleteBookings" data-section="bookings" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- المدفوعات -->
+      <div class="perm-cat">
+        <div class="perm-cat-hdr">
+          <div class="perm-cat-icon-wrap" style="background:#fffbeb;color:#b45309">💰</div>
+          <div class="perm-cat-label">المدفوعات</div>
+          <div class="perm-cat-actions">
+            <button type="button" onclick="toggleSection('payments',true)"  class="perm-cat-btn">الكل</button>
+            <button type="button" onclick="toggleSection('payments',false)" class="perm-cat-btn">لا شيء</button>
+          </div>
+        </div>
+        <div class="perm-rows">
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">عرض المدفوعات</span><span class="perm-row-desc">الاطلاع على سجلات الدفع والمتأخرات</span></div>
+            <label class="sw"><input type="checkbox" id="pViewPayments" data-section="payments" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">إدارة المدفوعات</span><span class="perm-row-desc">تسجيل دفعات وتعديل سجلات المالية</span></div>
+            <label class="sw"><input type="checkbox" id="pManagePayments" data-section="payments" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- الأعضاء -->
+      <div class="perm-cat">
+        <div class="perm-cat-hdr">
+          <div class="perm-cat-icon-wrap" style="background:#f5f3ff;color:#6d28d9">👥</div>
+          <div class="perm-cat-label">أعضاء الجمعية</div>
+          <div class="perm-cat-actions">
+            <button type="button" onclick="toggleSection('members',true)"  class="perm-cat-btn">الكل</button>
+            <button type="button" onclick="toggleSection('members',false)" class="perm-cat-btn">لا شيء</button>
+          </div>
+        </div>
+        <div class="perm-rows">
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">عرض الأعضاء</span><span class="perm-row-desc">رؤية قائمة الأعضاء ومعلوماتهم</span></div>
+            <label class="sw"><input type="checkbox" id="pViewMembers" data-section="members" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">إدارة الأعضاء</span><span class="perm-row-desc">إضافة وتعديل وتحديث بيانات الأعضاء</span></div>
+            <label class="sw"><input type="checkbox" id="pManageMembers" data-section="members" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- الشكاوى -->
+      <div class="perm-cat">
+        <div class="perm-cat-hdr">
+          <div class="perm-cat-icon-wrap" style="background:#fef2f2;color:#b91c1c">📝</div>
+          <div class="perm-cat-label">الشكاوى والمقترحات</div>
+          <div class="perm-cat-actions">
+            <button type="button" onclick="toggleSection('complaints',true)"  class="perm-cat-btn">الكل</button>
+            <button type="button" onclick="toggleSection('complaints',false)" class="perm-cat-btn">لا شيء</button>
+          </div>
+        </div>
+        <div class="perm-rows">
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">عرض جميع الشكاوى</span><span class="perm-row-desc">الاطلاع على شكاوى جميع المستخدمين</span></div>
+            <label class="sw"><input type="checkbox" id="pViewAllComplaints" data-section="complaints" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">الرد على الشكاوى</span><span class="perm-row-desc">إضافة ردود رسمية وتغيير حالة الشكاوى</span></div>
+            <label class="sw"><input type="checkbox" id="pRespondComplaints" data-section="complaints" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- لوحة التحكم والتقارير -->
+      <div class="perm-cat">
+        <div class="perm-cat-hdr">
+          <div class="perm-cat-icon-wrap" style="background:#ecfdf5;color:#059669">📊</div>
+          <div class="perm-cat-label">لوحة التحكم والتقارير</div>
+          <div class="perm-cat-actions">
+            <button type="button" onclick="toggleSection('reports',true)"  class="perm-cat-btn">الكل</button>
+            <button type="button" onclick="toggleSection('reports',false)" class="perm-cat-btn">لا شيء</button>
+          </div>
+        </div>
+        <div class="perm-rows">
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">عرض الرئيسية والإحصائيات</span><span class="perm-row-desc">الوصول للوحة التحكم والأرقام العامة</span></div>
+            <label class="sw"><input type="checkbox" id="pViewDashboard" data-section="reports" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+          <div class="perm-row">
+            <div class="perm-row-info"><span class="perm-row-name">التقارير المالية</span><span class="perm-row-desc">الاطلاع على التقارير والإحصاءات المالية</span></div>
+            <label class="sw"><input type="checkbox" id="pViewReports" data-section="reports" onchange="updatePermCount()"><span class="sw-track"><span class="sw-thumb"></span></span></label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('permissionsModal')">إلغاء</button>
+      <button class="btn-primary" onclick="savePermissions()">حفظ الصلاحيات</button>
+    </div>
+  </div>
+</div>
+
+<!-- تأكيد الحذف -->
+<div id="confirmModal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-body confirm-body">
+      <div class="confirm-icon">⚠️</div>
+      <h3 id="confirmTitle">تأكيد الحذف</h3>
+      <p id="confirmMsg">هل أنت متأكد من هذا الإجراء؟</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('confirmModal')">إلغاء</button>
+      <button class="btn-danger" id="confirmOkBtn">تأكيد</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال إضافة حدث -->
+<div id="eventModal" class="modal-overlay hidden">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <h3 id="eventModalTitle">إضافة حدث جديد</h3>
+      <button class="modal-close" onclick="closeModal('eventModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">اسم الحدث <span class="required">*</span></label>
+        <input type="text" id="eventTitle" class="form-input" placeholder="اكتب اسم الحدث..." />
+      </div>
+      <div class="form-group">
+        <label class="form-label">التفاصيل</label>
+        <textarea id="eventDesc" class="form-input" rows="3" placeholder="اكتب تفاصيل الحدث..."></textarea>
+      </div>
+      <!-- وسائط الحدث الحالية — تظهر عند التعديل فقط -->
+      <div id="eventCurrentMediaGroup" class="form-group hidden">
+        <label class="form-label">الوسائط الحالية</label>
+        <div id="eventCurrentMedia" class="event-upload-grid"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">إضافة صور أو فيديوهات</label>
+        <label class="event-upload-area">
+          <input type="file" id="eventMedia" accept="image/*,video/*" multiple onchange="addEventMedia()" hidden />
+          <div class="upload-icon">📎</div>
+          <div>انقر لاختيار ملفات جديدة</div>
+          <div class="upload-hint">JPG, PNG, GIF, MP4, MOV — حتى 100 ميجابايت لكل ملف</div>
+        </label>
+        <div id="eventUploadGrid" class="event-upload-grid"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('eventModal')">إلغاء</button>
+      <button class="btn-primary" id="eventSubmitBtn" onclick="submitEvent()">📢 نشر الحدث</button>
+    </div>
+  </div>
+</div>
+
+<!-- مودال عرض الوسائط -->
+<div id="mediaViewerModal" class="modal-overlay hidden" onclick="closeModal('mediaViewerModal')">
+  <div class="media-viewer-inner" onclick="event.stopPropagation()">
+    <button class="media-viewer-close" onclick="closeModal('mediaViewerModal')">✕</button>
+    <div id="mediaViewerContent"></div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="/js/app.js?v=24"></script>
+</body>
+</html>

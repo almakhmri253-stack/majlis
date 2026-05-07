@@ -1,0 +1,11 @@
+bin/
+obj/
+.vs/
+*.user
+*.suo
+.git/
+.gitignore
+wwwroot/uploads/
+appsettings.Development.json
+Temppub*/
+response_body.txt
