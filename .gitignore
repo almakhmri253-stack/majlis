@@ -10,3 +10,4 @@ wwwroot/uploads/
 Temp*/
 *.json.bak
 response_body.txt
+Temp*
