@@ -25,6 +25,15 @@ public class DashboardController : ControllerBase
         _cache = cache;
     }
 
+    /// <summary>أعداد الشارات فقط — خفيف وبدون كاش</summary>
+    [HttpGet("badges")]
+    public async Task<IActionResult> GetBadges()
+    {
+        var pending      = await _db.Bookings.CountAsync(b => b.Status == BookingStatus.Pending);
+        var newComplaints = await _db.Complaints.CountAsync(c => c.Status == ComplaintStatus.New);
+        return Ok(new { pendingBookings = pending, newComplaints });
+    }
+
     [HttpGet("stats")]
     [RequirePermission("ViewDashboard")]
     public async Task<IActionResult> GetStats()

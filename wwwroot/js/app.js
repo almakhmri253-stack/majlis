@@ -876,6 +876,7 @@ async function submitNewComplaint() {
     const label = type === 'Suggestion' ? 'اقتراحك' : 'شكواك';
     toast(`تم إرسال ${label} بنجاح، سيراجعه المدير قريباً`, 'success');
     closeModal('newComplaintModal');
+    refreshBadges();
     if (S.page === 'complaints') loadComplaints();
   } catch (err) { handleErr(err); }
 }
@@ -960,10 +961,21 @@ function renderRecentComplaints(list) {
 
 function updateBadges(s) {
   const pb = document.getElementById('pendingBadge');
-  if (pb && s.pendingBookings > 0) { pb.textContent = s.pendingBookings; pb.style.display = ''; }
+  if (pb) { if (s.pendingBookings > 0) { pb.textContent = s.pendingBookings; pb.style.display = ''; } else { pb.style.display = 'none'; } }
   const cb = document.getElementById('complaintsBadge');
-  if (cb && s.newComplaints > 0) { cb.textContent = s.newComplaints; cb.style.display = ''; }
+  if (cb) { if (s.newComplaints > 0) { cb.textContent = s.newComplaints; cb.style.display = ''; } else { cb.style.display = 'none'; } }
 }
+
+async function refreshBadges() {
+  if (!S.token) return;
+  try {
+    const s = await API.get('/dashboard/badges');
+    updateBadges(s);
+  } catch { /* صامت */ }
+}
+
+// تحديث دوري كل 30 ثانية
+setInterval(refreshBadges, 30_000);
 
 /* ════════════════════════════════════════════════════════════════
    BOOKINGS
@@ -1044,6 +1056,7 @@ async function quickStatus(id, status) {
     try {
       await API.patch(`/bookings/${id}/admin`, { status });
       invalidateDashCache();
+      refreshBadges();
       toast(`تم ${labels[status] === 'تأكيد' ? 'تأكيد' : 'رفض'} الحجز`, 'success');
       loadBookings();
     } catch (err) { handleErr(err); }
@@ -1055,6 +1068,7 @@ async function deleteBooking(id, name) {
     try {
       await API.delete(`/bookings/${id}`);
       invalidateDashCache();
+      refreshBadges();
       toast('تم حذف الحجز', 'success');
       loadBookings();
     } catch (err) { handleErr(err); }
@@ -1175,6 +1189,7 @@ async function submitBooking() {
     if (id) await API.put('/bookings/' + id, body);
     else    await API.post('/bookings', body);
     invalidateDashCache();
+    refreshBadges();
     toast(id ? 'تم تحديث الحجز' : 'تم إنشاء الحجز', 'success');
     closeModal('bookingModal');
     loadBookings();
@@ -1691,6 +1706,7 @@ async function submitComplaintResponse() {
   try {
     await API.patch(`/complaints/${_currentComplaintId}/respond`, { adminResponse: response, status });
     invalidateDashCache();
+    refreshBadges();
     toast('تم إرسال الرد', 'success');
     closeModal('complaintModal');
     loadComplaints();
