@@ -65,12 +65,16 @@ public class AuthService : IAuthService
         var emailKey = $"lockout:email:{dto.Email.ToLower()}";
         var ipKey    = $"lockout:ip:{ipAddress}";
 
+        int emailFails = 0, ipFails = 0;
+        _cache.TryGetValue(emailKey, out emailFails);
+        if (ipAddress != null) _cache.TryGetValue(ipKey, out ipFails);
+
         // فحص الإغلاق بالبريد
-        if (_cache.TryGetValue(emailKey, out int emailFails) && emailFails >= MaxFailedAttempts)
+        if (emailFails >= MaxFailedAttempts)
             throw new InvalidOperationException($"تم إيقاف تسجيل الدخول مؤقتاً بسبب المحاولات المتكررة. حاول بعد {LockoutMinutes} دقيقة");
 
         // فحص الإغلاق بالـ IP
-        if (ipAddress != null && _cache.TryGetValue(ipKey, out int ipFails) && ipFails >= MaxFailedAttempts * 3)
+        if (ipAddress != null && ipFails >= MaxFailedAttempts * 3)
             throw new InvalidOperationException($"تم إيقاف تسجيل الدخول مؤقتاً من هذا الجهاز. حاول بعد {LockoutMinutes} دقيقة");
 
         var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == dto.Email);
